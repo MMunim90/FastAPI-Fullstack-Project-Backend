@@ -30,6 +30,9 @@ class BookUpdate(BaseModel):
     total_copies : Optional[int] = Field(default=None)
     available_copies : Optional[int] = Field(default=None)
     
+
+class UpdateUserRole(BaseModel):
+    role : str
     
 class IssueBook(BaseModel):
     book_id: int
@@ -63,6 +66,22 @@ def get_all_users(user: user_dependency, db: db_dependency):
     
     users = db.query(Users).all()
     return users
+
+
+@router.put('/update_user_role')
+def update_user(user : user_dependency, db : db_dependency, user_id: int, update_user_role : UpdateUserRole):
+
+    if user is None or user.get('role') != 'librarian':
+            raise HTTPException(status_code=401, detail='Failed Authentication')
+
+    user = db.query(Users).filter(Users.id == user_id).first()
+
+    update_role = update_user_role.model_dump(exclude_unset=True)
+
+    user.role = update_user_role.role
+
+    db.commit()
+    return JSONResponse(status_code=200, content={'message' : 'User role updated successfully'})
 
 
 @router.delete('/admin/remove_user/{user_id}')
