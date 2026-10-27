@@ -29,6 +29,7 @@ class BookUpdate(BaseModel):
     price : Optional[float] = Field(default=None)
     total_copies : Optional[int] = Field(default=None)
     available_copies : Optional[int] = Field(default=None)
+    cover_image : Optional[str] = Field(default=None)
     
 
 class UpdateUserRole(BaseModel):
@@ -68,7 +69,7 @@ def get_all_users(user: user_dependency, db: db_dependency):
     return users
 
 
-@router.put('/update_user_role')
+@router.put('/admin/update_user_role')
 def update_user(user : user_dependency, db : db_dependency, user_id: int, update_user_role : UpdateUserRole):
 
     if user is None or user.get('role') != 'librarian':
