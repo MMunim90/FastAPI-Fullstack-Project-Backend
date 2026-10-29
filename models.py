@@ -43,7 +43,7 @@ class Reservations(Base):
     book_id = Column(Integer, ForeignKey('books.id'))
     user_id = Column(Integer, ForeignKey('users.id'))
     reservation_date = Column(DateTime, default = datetime.now)
-    status = Column(String, default = 'pending') # pending, approved, cancelled
+    status = Column(String, default = 'pending') # pending, approved, cancelled, rejected
     
     
 class IssueRecords(Base):
@@ -56,6 +56,6 @@ class IssueRecords(Base):
     issue_date = Column(DateTime, default = datetime.now)
     due_date = Column(DateTime)
     return_date = Column(DateTime, nullable=True)
-    status = Column(String, default = 'issued') # issued, returned
+    status = Column(String, default = 'issued') # issued, returned, rejected
     fine_amount = Column(Float, default=0.0)
     fine_paid = Column(Boolean, default=False)

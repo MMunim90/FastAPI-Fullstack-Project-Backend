@@ -179,7 +179,7 @@ def create_issue(user: user_dependency, db: db_dependency, issue_request: IssueB
         raise HTTPException(status_code=400, detail='No copies available!')
     
     loan_days = 14
-    issue_date = datetime.now
+    issue_date = datetime.now()
     
     issue_model = IssueRecords(
         book_id = issue_request.book_id,
@@ -195,7 +195,7 @@ def create_issue(user: user_dependency, db: db_dependency, issue_request: IssueB
         Reservations.book_id == issue_request.book_id,
         Reservations.user_id == issue_request.user_id,
         Reservations.status == 'pending'
-    )
+    ).first()
     
     if reservation is not None:
         reservation.status = 'approved'
@@ -204,6 +204,7 @@ def create_issue(user: user_dependency, db: db_dependency, issue_request: IssueB
     db.commit()
     
     return JSONResponse(status_code=201, content={'message': 'Book issued successfully'})
+
 
 
 @router.put('/admin/return_book/{issue_id}')
@@ -249,3 +250,34 @@ def fine_paid(user: user_dependency, db: db_dependency, issue_id: int):
     db.commit()
     
     return JSONResponse(status_code=200, content={'message': 'Fine paid successfully'})
+
+
+@router.get('/admin/all_reservation')
+def all_reservation(user: user_dependency, db: db_dependency):
+    
+    if user is None or user.get('role') != 'librarian':
+            raise HTTPException(status_code=401, detail='Failed Authentication')
+    
+    reservations = db.query(Reservations).all()
+            
+    if reservations is None:
+        raise HTTPException(status_code=404, detail='No reservation found')
+        
+    return reservations
+    
+
+@router.delete('/admin/cancel_reservation/{reservation_id}')
+def reject_reservation(user: user_dependency, db: db_dependency, reservation_id: int):
+    
+    if user is None or user.get('role') != 'librarian':
+                raise HTTPException(status_code=401, detail='Failed Authentication')
+    
+    reservation = db.query(Reservations).filter(Reservations.id == reservation_id).first()
+        
+    if reservation is None:
+        raise HTTPException(status_code=404, detail='Reservation not found')
+    
+    reservation.status = 'rejected'
+    db.commit()
+    
+    return JSONResponse(status_code=201, content={'message': 'Reservation rejected successfully'})
