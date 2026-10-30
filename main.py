@@ -119,7 +119,7 @@ def my_issued_books(user: user_dependency, db: db_dependency):
     if user is None:
         raise HTTPException(status_code=401, detail='Failed Authentication')
     
-    issues = db.query(IssueRecords).filter(IssueRecords.user_id == user.get('id'), IssueRecords.status == 'issued').all()
+    issues = db.query(IssueRecords).filter(IssueRecords.user_id == user.get('id')).all()
         
     if issues is None:
         raise HTTPException(status_code=404, detail='No issued books found')
