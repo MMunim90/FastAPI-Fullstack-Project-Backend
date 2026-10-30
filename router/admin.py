@@ -218,7 +218,7 @@ def return_book(user: user_dependency, db: db_dependency, issue_id: int):
     if issue is None:
         raise HTTPException(status_code=404, detail='Issue record not found!')
     
-    return_date = datetime.now
+    return_date = datetime.now()
     fine = calculate_fine(issue.due_date, return_date)
     
     issue.return_date = return_date
@@ -281,3 +281,17 @@ def reject_reservation(user: user_dependency, db: db_dependency, reservation_id:
     db.commit()
     
     return JSONResponse(status_code=201, content={'message': 'Reservation rejected successfully'})
+
+
+@router.get('/admin/all_issue')
+def all_issue(user: user_dependency, db: db_dependency):
+    
+    if user is None or user.get('role') != 'librarian':
+            raise HTTPException(status_code=401, detail='Failed Authentication')
+    
+    issues = db.query(IssueRecords).all()
+            
+    if issues is None:
+        raise HTTPException(status_code=404, detail='No issues found')
+        
+    return issues
