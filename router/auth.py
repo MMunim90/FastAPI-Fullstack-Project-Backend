@@ -117,7 +117,7 @@ def login_user(db : db_dependency, form_data : Annotated[OAuth2PasswordRequestFo
     if not user:
         raise HTTPException(status_code=401, detail="Invalid Username or Password!!!")
 
-    token = create_access_token(user.username, user.id, user.role, timedelta(minutes=30))
+    token = create_access_token(user.username, user.id, user.role, timedelta(minutes=60))
 
     return {'access_token' : token, 'token_type' : 'bearer'}
 
